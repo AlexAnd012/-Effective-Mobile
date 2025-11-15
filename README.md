@@ -32,7 +32,7 @@ json
   
 
 # REST-сервис для хранения и расчёта стоимостей пользовательских подписок.  
-Поддерживает CRUDL, расчёт суммарной стоимости за период, миграции PostgreSQL, логирование, middleware, конфиги из .env, Swagger и запуск через Docker Compose.  
+Поддерживает CRUDL, расчёт суммарной стоимости за период, миграции PostgreSQL, логирование, middleware, конфиги из .env, Swagger и запуск через Docker Compose    
 # Стек
 Go (стандартная библиотека: net/http, context)
 chi роутинг (github.com/go-chi/chi/v5)
@@ -56,10 +56,11 @@ GET /healthz жив ли процесс
 GET /readyz готов ли сервис (ping БД с таймаутом)  
 ## Логи  
 (access + recovery), request-id, конфиги из .env  
-## Миграции PostgreSQL (migrations/0001_init.up.sql)  
-## Swagger UI (/swagger/index.html)
+## Миграции PostgreSQL 
+(migrations/0001_init.up.sql)  
+## Swagger UI 
+(/swagger/index.html)  
 # Архитектура и расположение
-.
 ├── cmd/  
 │   └── main.go                     # точка входа 
 ├── internal/   
@@ -104,17 +105,17 @@ GET /readyz готов ли сервис (ping БД с таймаутом)
 ├── go.mod  
 └── Makefile  
 ## Слои  
-domain «чистая» модель и инварианты.  
-dto вход/выход API (что читает/пишет HTTP).  
-service бизнес-логика: валидации, парсинг дат MM-YYYY, превращение DTO в Domain, вызовы репозитория.  
-repo SQL к PostgreSQL. В тот числе CalcTotal без помесячной генерации - через формулы пересечения периодов.  
-http_server веб-уровень: хендлеры, middleware, маршрутизация, JSON-ответы.
+**domain** чистая модель и инварианты    
+**dto** вход/выход API (как принимаем и отдаем данные по HTTP)    
+**service** бизнес-логика: валидации, парсинг дат MM-YYYY, превращение DTO в Domain, вызовы репозитория    
+**repo** PostgreSQL      
+**http_server** веб-уровень: хендлеры, middleware, маршрутизация, JSON-ответы  
 
-## Сборка и запуск
-make compose-up   
-make run  
+## Сборка и запуск  
+make compose-up     
+make run    
 
 ## Логирование и middleware
-**AccessLog** лог каждой HTTP-операции: метод, путь, статус, байты, длительность, request-id.    
-**Recovery** ловит паники, пишет stacktrace, возвращает 500.   
-**RequestID** присваивает/прокидывает X-Request-ID для трассировки.    
+**AccessLog** лог каждой HTTP-операции: метод, путь, статус, байты, длительность, request-id      
+**Recovery** ловит паники, пишет stacktrace, возвращает 500     
+**RequestID** присваивает/прокидывает X-Request-ID для трассировки      
