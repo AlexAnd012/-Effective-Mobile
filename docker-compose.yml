@@ -1,0 +1,45 @@
+services:
+  # Запуск бд
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: subs
+      POSTGRES_USER: subs
+      POSTGRES_PASSWORD: subs
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U subs -d subs"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+  # Запуск миграций
+  migrate:
+    image: migrate/migrate:4
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    command: [
+      "-source", "file:///migrations",
+      "-database", "postgres://subs:subs@postgres:5432/subs?sslmode=disable",
+      "up"
+    ]
+  # Запуск приложения
+  app:
+    build: .
+    container_name: subs-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    env_file: .env
+    ports:
+      - "8080:8080"
+
+volumes:
+  dbdata: {}

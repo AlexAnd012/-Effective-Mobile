@@ -1,0 +1,239 @@
+basePath: /api/v1
+definitions:
+  dto.CreateSubscriptionRequest:
+    properties:
+      end_date:
+        description: YYYY-MM, опционально
+        example: 2026-01
+        type: string
+      price:
+        example: 400
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        description: YYYY-MM
+        example: 2025-07
+        type: string
+      user_id:
+        description: UUID
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    type: object
+  dto.SubscriptionResponse:
+    properties:
+      end_date:
+        description: YYYY-MM
+        type: string
+      id:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        description: YYYY-MM
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.TotalCostResponse:
+    properties:
+      currency:
+        example: RUB
+        type: string
+      months_counted:
+        example: 14
+        type: integer
+      total:
+        example: 5600
+        type: integer
+    type: object
+  dto.UpdateSubscriptionRequest:
+    properties:
+      end_date:
+        description: YYYY-MM или "" чтобы снять окончание
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        description: YYYY-MM
+        type: string
+    type: object
+  httpx.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: REST API для управления подписками и расчёта суммарной стоимости.
+  title: Subscriptions API
+  version: "1.0"
+paths:
+  /cost/total:
+    get:
+      description: Сумма стоимостей всех подписок за период (включительно), с фильтрами
+      parameters:
+      - description: Начало периода, YYYY-MM
+        in: query
+        name: from
+        required: true
+        type: string
+      - description: Конец периода, YYYY-MM
+        in: query
+        name: to
+        required: true
+        type: string
+      - description: Фильтр по UUID пользователя
+        in: query
+        name: user_id
+        type: string
+      - description: Фильтр по названию сервиса
+        in: query
+        name: service_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TotalCostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Total cost
+      tags:
+      - cost
+  /subscriptions:
+    get:
+      parameters:
+      - description: Фильтр по UUID пользователя
+        in: query
+        name: user_id
+        type: string
+      - description: Фильтр по названию сервиса (ILIKE)
+        in: query
+        name: service_name
+        type: string
+      - description: Лимит, по умолчанию 50
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение, по умолчанию 0
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.SubscriptionResponse'
+            type: array
+      summary: List subscriptions
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные подписки
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.SubscriptionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Create subscription
+      tags:
+      - subscriptions
+  /subscriptions/{id}:
+    delete:
+      parameters:
+      - description: ID подписки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Delete subscription
+      tags:
+      - subscriptions
+    get:
+      parameters:
+      - description: ID подписки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SubscriptionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Get subscription by ID
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Частичное обновление. Пустая строка в end_date снимает дату окончания.
+      parameters:
+      - description: ID подписки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Поля для обновления
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSubscriptionRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Update subscription
+      tags:
+      - subscriptions
+swagger: "2.0"
