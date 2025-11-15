@@ -33,14 +33,14 @@ json
 
 # REST-сервис для хранения и расчёта стоимостей пользовательских подписок.  
 Поддерживает CRUDL, расчёт суммарной стоимости за период, миграции PostgreSQL, логирование, middleware, конфиги из .env, Swagger и запуск через Docker Compose    
-# Стек
-Go (стандартная библиотека: net/http, context)
-chi роутинг (github.com/go-chi/chi/v5)
-pgx/pgxpool PostgreSQL драйвер/пул соединений (github.com/jackc/pgx/v5/pgxpool)
-slog структурные логи (log/slog)
-swaggo/http-swagger Swagger UI 
-docker compose запуск postgres + приложение
-migrate/migrate применение миграций
+# Стек  
+**Go** (стандартная библиотека: net/http, context)  
+**chi** роутинг (github.com/go-chi/chi/v5)  
+**pgx/pgxpool** PostgreSQL драйвер/пул соединений (github.com/jackc/pgx/v5/pgxpool)  
+**slog** структурные логи (log/slog)  
+**swaggo/http-swagger** Swagger UI   
+**docker compose** запуск postgres + приложение  
+**migrate** применение миграций  
 
 # Реализовано 
 ## CRUDL для подписок:  
